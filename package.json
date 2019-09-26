@@ -1,0 +1,22 @@
+{
+  "name": "bamazon-mysql",
+  "version": "1.0.0",
+  "description": "",
+  "main": "bamazonCustomer.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mfail792/Bamazon-MySQL.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/mfail792/Bamazon-MySQL/issues"
+  },
+  "homepage": "https://github.com/mfail792/Bamazon-MySQL#readme",
+  "dependencies": {
+    "inquirer": "^7.0.0"
+  }
+}
