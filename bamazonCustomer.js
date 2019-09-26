@@ -16,26 +16,27 @@ var connection = mysql.createConnection({
 });
 
 
-connection.connect(function(err) {
+connection.connect(function (err) {
     if (err) throw err;
     console.log("connected as id " + connection.threadId);
     queryID();
     queryQuantity();
-  });
-  
+});
 
-  inquirer
-  .prompt([
-    // Here we create a basic text prompt.
-    {
-      type: "list",
-      message: "What is the item ID you seek?",
-      name: "product_name"
-    },
-    // Here we create a basic password-protected text prompt.
-    {
-      type: "quantity",
-      message: "How many would you like to purchase?",
-      name: "stock_quantity"
-    }
-])
+function queryID() {
+    inquirer
+        .prompt([
+            // Here we create a basic text prompt.
+            {
+                type: "list",
+                message: "Welcome!  Here are the items for sale currently...",
+                name: "product_name"
+            },
+            // Here we create a basic password-protected text prompt.
+            {
+                type: "quantity",
+                message: "How many would you like to purchase?",
+                name: "stock_quantity"
+            }
+        ])
+}
