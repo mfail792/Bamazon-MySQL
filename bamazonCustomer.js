@@ -14,3 +14,28 @@ var connection = mysql.createConnection({
     password: "vegetable",
     database: "bamazonDB"
 });
+
+
+connection.connect(function(err) {
+    if (err) throw err;
+    console.log("connected as id " + connection.threadId);
+    queryID();
+    queryQuantity();
+  });
+  
+
+  inquirer
+  .prompt([
+    // Here we create a basic text prompt.
+    {
+      type: "list",
+      message: "What is the item ID you seek?",
+      name: "product_name"
+    },
+    // Here we create a basic password-protected text prompt.
+    {
+      type: "quantity",
+      message: "How many would you like to purchase?",
+      name: "stock_quantity"
+    }
+])
