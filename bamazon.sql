@@ -2,7 +2,7 @@ USE bamazonDB;
 
 CREATE TABLE products (
 id INT AUTO_INCREMENT NOT NULL,
-item_id VARCHAR(5),
+item_id VARCHAR(10),
 product_name VARCHAR(50),
 department_name  VARCHAR(50),
 price DECIMAL(10,2),
@@ -10,17 +10,7 @@ stock_quantity INT NULL,
 PRIMARY KEY (id)
 );
 
-INSERT INTO products (item_id, product_name)
-VALUES ("SCI", "MNS", "EAR", "GTS", "TRT", "VPS", "LPS", "MCE", "CND", "BCK");
+INSERT INTO products (item_id, product_name, department_name, price, stock_quantity)
+VALUES (11, "dogs", "zone 3", 37.55, 16), (21, "ants", "zone 4", 14.32, 66), (43, "cats", "zone 6", 2.66, 403), (33, "frogs", "zone 3", 1.14, 5), (51, "TV's", "zone 7", 6.76, 20), (72, "burgers", "zone 1", 1.11, 200), (61, "noses", "zone 14", 3.41, 75), (88, "flowers", "zone 13", 2.65, 70),
+(90, "goats", "zone 8", 22.55, 80), (100, "crayons", "zone 2", 4.50, 18);
 
-INSERT INTO products (product_name)
-VALUES ("scissors", "melons", "earrings", "goats", "turtles", "vipers", "laptops", "mice", "candles", "buckets");
-
-INSERT INTO products (department_name)
-VALUES ("isle 5", "section 4", "station 3", "endcap 1");
-
-INSERT INTO products (price)
-VALUES (3.22, 4.19, 7.13, 2.00, 14.00, 15.76, 1.37);
-
-INSERT INTO products (stock_quantity)
-VALUES (4, 13, 3, 10, 9, 23, 1, 49);
