@@ -20,37 +20,34 @@ connection.connect(function (err) {
     if (err) throw err;
     console.log("connected as id " + connection.threadId);
     queryAll();
+    connection.end();
 });
 
-
 function queryAll() {
-    con.connect(function (err) {
+    inquirer
+        .prompt({
+            name: "firstQ",
+            type: "list",
+            message: "Here are the items for sale: ",
+        })
+        .then(displayTable())
+
+}
+
+function displayTable() {
+    connection.query("SELECT * FROM products", function (err, res) {
         if (err) throw err;
-        //Select all customers and return the result object:
-        con.query("SELECT * FROM products", function (err, result) {
-            if (err) throw err;
-            console.log(result);
-        });
-
-        inquirer
-            .prompt([
-                // Here we create a basic text prompt.
-                {
-                    type: "list",
-                    message: "Welcome!  Here are the items for sale currently...",
-                    name: "all_products",
-                    choices: ["Scissors", "goats", "vipers"]
-                }, {
-                    name: "unitAmount",
-                    type: "input",
-                    message: "How many units?"
-                }]);
+        for (var i = 0; i < res.length; i++) {
+            console.log(res[i].item_id + " | " + res[i].product_name + " | " + res[i].department_name + " | " + res[i].price + " | " + res[i].stock_quantity);
+        }
+        console.log("-----------------------------------");
+    });
+}
 
 
 
-    }
-    )
-};
+
+
 
 
 
