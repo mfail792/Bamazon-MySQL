@@ -19,22 +19,38 @@ var connection = mysql.createConnection({
 connection.connect(function (err) {
     if (err) throw err;
     console.log("connected as id " + connection.threadId);
-    start();
+    queryAll();
 });
 
-function start() {
-    inquirer
-        .prompt([
-            // Here we create a basic text prompt.
-            {
-                type: "list",
-                message: "Welcome!  Here are the items for sale currently...",
-                name: "all_products",
-                choices: ["Scissors", "goats", "vipers"]
-            },
 
-            connection.end()
-            // Here we create a basic password-protected text prompt.
+function queryAll() {
+    con.connect(function (err) {
+        if (err) throw err;
+        //Select all customers and return the result object:
+        con.query("SELECT * FROM products", function (err, result) {
+            if (err) throw err;
+            console.log(result);
+        });
 
-        ])
+        inquirer
+            .prompt([
+                // Here we create a basic text prompt.
+                {
+                    type: "list",
+                    message: "Welcome!  Here are the items for sale currently...",
+                    name: "all_products",
+                    choices: ["Scissors", "goats", "vipers"]
+                }, {
+                    name: "unitAmount",
+                    type: "input",
+                    message: "How many units?"
+                }]);
+
+
+
     }
+    )
+};
+
+
+
