@@ -19,12 +19,12 @@ var connection = mysql.createConnection({
 connection.connect(function (err) {
     if (err) throw err;
     console.log("connected as id " + connection.threadId);
-    queryAll();
+    displayAll();
     connection.end();
 });
 
 //upon load, MySQL table will appear
-function queryAll() {
+function displayAll() {
     connection.query("SELECT * FROM products", function (err, res) {
         if (err) throw err;
         for (var i = 0; i < res.length; i++) {
@@ -33,61 +33,71 @@ function queryAll() {
 
 
         console.log("-----------------------------------");
+
+
         //running inquirer prompt here to ask user questions after table load
-        inquirer
-            .prompt([
-                {
-                    name: "firstQ",
-                    type: "input",
-                    choices: function () {
-                        var choiceArray = [];
-                        for (var i = 0; i < results.length; i++) {
-                            choiceArray.push(results[i].item_id);
-                        }
-                        return choiceArray;
-                    },
-                    message: "What is the item ID # of the product you want?"
-                },
-                {
-                    name: "secondQ",
-                    type: "input",
-                    message: "How many of the items do you want to purchase?"
-                }
-            ])
-            .then(function (answer) {
-                // get the information of the chosen item
-                var chosenItem;
-                for (var i = 0; i < results.length; i++) {
-                    if (results[i].item_name === answer.choice) {
-                        chosenItem = results[i];
-
-                        if (chosenItem.stock_quantity < parseInt(answer.bid)) {
-                            // bid was high enough, so update db, let the user know, and start over
-                            connection.query(
-                                "UPDATE products SET ? WHERE ?",
-                                [
-                                    {
-                                        highest_bid: answer.bid
-                                    },
-                                    {
-                                        id: chosenItem.id
-
-                                    }
-                                ],
-                                function (error) {
-                                    if (error) throw err;
-                                    console.log("Order placed successfully.")
-                                    queryAll();
+        function itemSelect() {
+            connection.query("SELECT * FROM products", function (err, results) {
+                if (err) throw err;
+                inquirer
+                    .prompt([
+                        {
+                            name: "firstQ",
+                            type: "input",
+                            choices: function () {
+                                var choiceArray = [];
+                                for (var i = 0; i < results.length; i++) {
+                                    choiceArray.push(results[i].item_id);
                                 }
-                            );
+                                return choiceArray;
+                            },
+                            message: "What is the item ID # of the product you want?"
+                        },
+                        {
+                            name: "secondQ",
+                            type: "input",
+                            message: "How many of the items do you want to purchase?"
                         }
-                        else {
-                            console.log("Not enough inventory - sorry!");
-                            queryAll();
+                    ])
+                    .then(function (answer) {
+                        // get the information of the chosen item
+                        var chosenItem;
+                        for (var i = 0; i < results.length; i++) {
+                            if (results[i].item_id === answer.choice) {
+                                chosenItem = results[i];
+
+                                if (chosenItem.stock_quantity < parseInt(answer.secondQ)) {
+                                    console.log("Sorry, not enough in stock!")
+                                }
+
+                                else {
+                                    console.log("Order placed successfully!")
+
+                                }
+
+                                //updating the stock quantity based on question 2
+                                connection.query(
+                                    "UPDATE products SET ? WHERE ?",
+                                    [
+                                        {
+                                            stock_quantity: answer.secondQ
+                                        }
+                                    ]
+                                )
+                            }
                         }
-                    });
-    });
+                    }
+                    )
+            }
+            )
+        }
+    })
 }
+
+
+
+
+
 
 
 
