@@ -64,7 +64,7 @@ function queryAll() {
                         if (chosenItem.stock_quantity < parseInt(answer.bid)) {
                             // bid was high enough, so update db, let the user know, and start over
                             connection.query(
-                                "UPDATE auctions SET ? WHERE ?",
+                                "UPDATE products SET ? WHERE ?",
                                 [
                                     {
                                         highest_bid: answer.bid
@@ -73,7 +73,23 @@ function queryAll() {
                                         id: chosenItem.id
 
                                     }
-                
-                }
+                                ],
+                                function (error) {
+                                    if (error) throw err;
+                                    console.log("Order placed successfully.")
+                                    queryAll();
+                                }
+                            );
+                        }
+                        else {
+                            console.log("Not enough inventory - sorry!");
+                            queryAll();
+                        }
+                    });
+    });
+}
+
+
+
 
 
