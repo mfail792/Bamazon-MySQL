@@ -23,6 +23,7 @@ connection.connect(function (err) {
     connection.end();
 });
 
+//upon load, MySQL table will appear
 function queryAll() {
     connection.query("SELECT * FROM products", function (err, res) {
         if (err) throw err;
@@ -32,21 +33,47 @@ function queryAll() {
 
 
         console.log("-----------------------------------");
+        //running inquirer prompt here to ask user questions after table load
+        inquirer
+            .prompt([
+                {
+                    name: "firstQ",
+                    type: "input",
+                    choices: function () {
+                        var choiceArray = [];
+                        for (var i = 0; i < results.length; i++) {
+                            choiceArray.push(results[i].item_id);
+                        }
+                        return choiceArray;
+                    },
+                    message: "What is the item ID # of the product you want?"
+                },
+                {
+                    name: "secondQ",
+                    type: "input",
+                    message: "How many of the items do you want to purchase?"
+                }
+            ])
+            .then(function (answer) {
+                // get the information of the chosen item
+                var chosenItem;
+                for (var i = 0; i < results.length; i++) {
+                    if (results[i].item_name === answer.choice) {
+                        chosenItem = results[i];
 
-        inquirer.prompt({
-            name: "firstQ",
-            type: "input",
-            message: "What is the ID of the item you would like to purchase? "
-        }, {
-            name: "secondQ",
-            type: "input",
-            message: "How many would you like? "
-        })
+                        if (chosenItem.stock_quantity < parseInt(answer.bid)) {
+                            // bid was high enough, so update db, let the user know, and start over
+                            connection.query(
+                                "UPDATE auctions SET ? WHERE ?",
+                                [
+                                    {
+                                        highest_bid: answer.bid
+                                    },
+                                    {
+                                        id: chosenItem.id
 
-
-    });
-}
-
-
+                                    }
+                
+                }
 
 
