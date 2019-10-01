@@ -1,7 +1,9 @@
+//declaring packages being used
 var mysql = require('mysql');
 var inquirer = require('inquirer');
 var Table = require("cli-table2");
 
+//establishing the connection to MySQL
 var connection = mysql.createConnection({
     host: "localhost",
     user: "root",
@@ -10,6 +12,7 @@ var connection = mysql.createConnection({
     port: 3306
 });
 
+//Displaying connected message upon successful connect and then executing functions
 connection.connect(function (err) {
     if (err) throw err;
     console.log("Connected to MySQL Database");
@@ -17,6 +20,7 @@ connection.connect(function (err) {
     queryAll();
 })
 
+//upon load, user is displayed table taken from MySQL DB, laid out using CLI-Table2
 var displayAll = function () {
     connection.query("SELECT * FROM products", function (err, res) {
         if (err) throw err;
@@ -37,6 +41,7 @@ var displayAll = function () {
                 compact: true
             }
         });
+        //for loop to grab and push table info to console
         for (var i = 0; i < res.length; i++) {
             table.push([res[i].item_id, res[i].product_name, res[i].department_name, res[i].price, res[i].stock_quantity]);
         }
@@ -47,6 +52,7 @@ var displayAll = function () {
     });
 }
 
+//after the table is displayed, user will be prompted using inquirer about which item they want to purchase from a list that accesses an array of choices
 function queryAll() {
 
     connection.query("SELECT * FROM products", function (err, results) {
@@ -72,6 +78,7 @@ function queryAll() {
                     message: "How many would you like to purchase?"
                 }
             ])
+            //from here the app takes the user data entered and checks against inventory levels
             .then(function (answer) {
                 var chosenItem;
                 for (var i = 0; i < results.length; i++) {
@@ -82,12 +89,14 @@ function queryAll() {
                 var updatedStock = parseInt(chosenItem.stock_quantity) - parseInt(answer.purchasequantity);
                 var productSales = parseFloat(chosenItem.product_sales).toFixed(2);
 
+                //if quantity ordered exceeds inventory, sorry message appears
                 if (chosenItem.stock_quantity < parseInt(answer.purchasequantity)) {
                     console.log("Sorry...we don't have enough in stock.");
                     startOver();
 
                 }
                 else {
+                    //if there is enough inventory for a sale, we calculate the values and display the total cost to the user
                     var Total = (parseFloat(answer.purchasequantity) * chosenItem.price).toFixed(2);
                     console.log(Total);
                     var pTotal = (parseFloat(Total) + parseFloat(productSales)).toFixed(2);
@@ -113,8 +122,7 @@ function queryAll() {
 }
 
 
-
-
+//after a transaction, we ask the user if they would like to make another purchase
 function startOver() {
     inquirer.prompt({
         name: "rebuy",
@@ -135,4 +143,3 @@ function startOver() {
     }
     )
 }
-
