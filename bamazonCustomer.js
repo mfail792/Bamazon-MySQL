@@ -8,8 +8,14 @@ var connection = mysql.createConnection({
     password: "vegetable",
     database: "bamazonDB",
     port: 3306
+});
+
+connection.connect(function (err) {
+    if (err) throw err;
+    console.log("Connected to MySQL Database");
+    displayAll();
+    queryAll();
 })
-connection.connect();
 
 var displayAll = function () {
     connection.query("SELECT * FROM products", function (err, res) {
@@ -36,43 +42,97 @@ var displayAll = function () {
         }
         console.log(table.toString());
         console.log("");
-        queryAll();
+
 
     });
 }
 
 function queryAll() {
-    connection.query("SELECT * FROM products", function (err) {
+
+    connection.query("SELECT * FROM products", function (err, results) {
         if (err) throw err;
-        console.log("-----------------------------------");
-        inquirer.prompt([{
-            name: "itemID",
-            type: "input",
-            message: "What is ID of the item you'd like to buy?"
-        }, {
-            name: "unitAmount",
-            type: "input",
-            message: "How many units of the item would you like?"
-        }])
+
+        inquirer
+            .prompt([
+                {
+                    name: "choice",
+                    type: "rawlist",
+                    choices: function () {
+                        var choiceArray = [];
+                        for (var i = 0; i < results.length; i++) {
+                            choiceArray.push(results[i].item_id);
+                        }
+                        return choiceArray;
+                    },
+                    message: "Please enter the item ID # of the product you wish to purchase."
+                },
+                {
+                    name: "purchasequantity",
+                    type: "input",
+                    message: "How many would you like to purchase?"
+                }
+            ])
             .then(function (answer) {
-                var query = "SELECT * FROM products where ?"
-                connection.query(query, { item_id: answer.itemID }, function (err, res) {
-                    if (err) throw err;
-                    if (res.length === 0) {
-                        console.log("Invalid product number")
-                    };
-                    console.log("Success!");
-                    connection.end();
-                });
+                var chosenItem;
+                for (var i = 0; i < results.length; i++) {
+                    if (results[i].item_id === answer.choice) {
+                        chosenItem = results[i];
+                    }
+                }
+                var updatedStock = parseInt(chosenItem.stock_quantity) - parseInt(answer.purchasequantity);
+                var productSales = parseFloat(chosenItem.product_sales).toFixed(2);
+
+                if (chosenItem.stock_quantity < parseInt(answer.purchasequantity)) {
+                    console.log("Sorry...we don't have enough in stock.");
+                    startOver();
+
+                }
+                else {
+                    var Total = (parseFloat(answer.purchasequantity) * chosenItem.price).toFixed(2);
+                    console.log(Total);
+                    var pTotal = (parseFloat(Total) + parseFloat(productSales)).toFixed(2);
+
+                    connection.query(
+                        "UPDATE products SET ? WHERE ?",
+                        [{
+                            stock_quantity: updatedStock
+                        },
+                        { item_id: chosenItem.item_id },
+                        {
+                            product_sales: pTotal
+                        }], function (err) {
+                            if (err) throw err;
+                            console.log("Thank you for your purchase!");
+                            console.log("Your total cost is $: " + Total);
+                            startOver();
+                        })
+
+                }
             });
     });
-
-
 }
 
-displayAll();
 
 
 
+function startOver() {
+    inquirer.prompt({
+        name: "rebuy",
+        type: "list",
+        choices: ["Yes", "No"],
+        message: "Would you like to purchase a different item?"
+    }).then(function (answer) {
+        if (answer.rebuy === "Yes") {
+            displayAll();
+            queryAll();
 
+        }
+        else {
+            console.log("Thanks for shopping Bamazon!")
+            connection.end();
+        }
+
+    }
+    )
+}
 
